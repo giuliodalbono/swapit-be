@@ -1,3 +1,26 @@
 spring:
   application:
     name: swapit-be
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/swapit?useSSL=FALSE&allowPublicKeyRetrieval=true
+    username: root
+    password: password
+
+  liquibase:
+    enabled: true
+    change-log: io/github/giuliodalbono/swapit/db/changelog-master.xml
+
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    properties:
+      hibernate:
+        use_sql_comments: false
+        format_sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
