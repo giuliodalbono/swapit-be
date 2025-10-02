@@ -14,7 +14,6 @@ class FeedbackMapper {
             id = feedback.id!!,
             rating = feedback.rating!!,
             review = feedback.review!!,
-            endTime = feedback.endTime!!,
             version = feedback.version,
             creationTime = feedback.creationTime!!,
             lastUpdate = feedback.lastUpdate!!,
@@ -27,14 +26,12 @@ class FeedbackMapper {
         return Feedback().apply {
             rating = createRequest.rating
             review = createRequest.review
-            endTime = createRequest.endTime
         }
     }
 
     fun updateEntity(feedback: Feedback, updateRequest: UpdateFeedbackRequest): Feedback {
         feedback.rating = updateRequest.rating
         feedback.review = updateRequest.review
-        feedback.endTime = updateRequest.endTime
         return feedback
     }
 }

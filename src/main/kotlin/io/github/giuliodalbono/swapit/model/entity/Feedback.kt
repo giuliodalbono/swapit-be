@@ -5,7 +5,6 @@ import org.hibernate.annotations.Generated
 import org.hibernate.generator.EventType
 import java.io.Serializable
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 @Entity
 @Table(name = "feedback")
@@ -21,9 +20,6 @@ class Feedback: Serializable {
 
     @Column(nullable = false)
     var review: String? = null
-
-    @Column(nullable = false)
-    var endTime: LocalTime? = null
 
     @Generated(event = [EventType.INSERT])
     @Column(updatable = false, nullable = false)
@@ -53,6 +49,6 @@ class Feedback: Serializable {
     }
 
     override fun toString(): String {
-        return "Feedback(id=$id, version=$version, rating=$rating, review=$review, endTime=$endTime, creationTime=$creationTime, lastUpdate=$lastUpdate, reviewer=$reviewer, reviewed=$reviewed)"
+        return "Feedback(id=$id, version=$version, rating=$rating, review=$review, creationTime=$creationTime, lastUpdate=$lastUpdate, reviewer=$reviewer, reviewed=$reviewed)"
     }
 }
