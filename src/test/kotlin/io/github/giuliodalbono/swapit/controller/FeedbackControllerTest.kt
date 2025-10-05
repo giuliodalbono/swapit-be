@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.util.*
 
 @WebMvcTest(FeedbackController::class)
@@ -33,14 +32,12 @@ class FeedbackControllerTest {
     private val testId = 1L
     private val testRating = 5L
     private val testReview = "Great teaching session!"
-    private val testEndTime = LocalTime.of(11, 0)
     private val testDateTime = LocalDateTime.now()
 
     private val testFeedbackDto = FeedbackDto(
         id = testId,
         rating = testRating,
         review = testReview,
-        endTime = testEndTime,
         version = 0L,
         creationTime = testDateTime,
         lastUpdate = testDateTime,
@@ -51,7 +48,6 @@ class FeedbackControllerTest {
     private val createFeedbackRequest = CreateFeedbackRequest(
         rating = testRating,
         review = testReview,
-        endTime = testEndTime,
         reviewerUid = "user123",
         reviewedUid = "user123"
     )
@@ -59,7 +55,6 @@ class FeedbackControllerTest {
     private val updateFeedbackRequest = UpdateFeedbackRequest(
         rating = 4L,
         review = "Updated review",
-        endTime = testEndTime,
         reviewerUid = "user123",
         reviewedUid = "user123"
     )

@@ -35,11 +35,11 @@ class SwapProposal: Serializable {
 
     @Generated(event = [EventType.INSERT])
     @Column(updatable = false, nullable = false)
-    var creationTime: LocalDateTime? = null
+    lateinit var creationTime: LocalDateTime
 
     @Generated(event = [EventType.INSERT, EventType.UPDATE])
     @Column(nullable = false)
-    var lastUpdate: LocalDateTime? = null
+    lateinit var lastUpdate: LocalDateTime
 
     @ManyToOne
     var skillOffered: Skill? = null
@@ -52,6 +52,19 @@ class SwapProposal: Serializable {
 
     @ManyToOne
     var offerUser: User? = null
+
+    @PrePersist
+    fun prePersist() {
+        lastUpdate = LocalDateTime.now()
+        if (!this::creationTime.isInitialized) {
+            creationTime = lastUpdate
+        }
+    }
+
+    @PreUpdate
+    fun preUpdate() {
+        lastUpdate = LocalDateTime.now()
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
