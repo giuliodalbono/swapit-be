@@ -32,12 +32,14 @@ class UserControllerTest {
     private val testUid = "test-uid"
     private val testEmail = "test@example.com"
     private val testUsername = "testuser"
+    private val testProfilePicture = byteArrayOf(10, 20, 30, 40, 50)
     private val testDateTime = LocalDateTime.now()
 
     private val testUserDto = UserDto(
         uid = testUid,
         email = testEmail,
         username = testUsername,
+        profilePicture = testProfilePicture,
         version = 0L,
         creationTime = testDateTime,
         lastUpdate = testDateTime
@@ -46,12 +48,14 @@ class UserControllerTest {
     private val createUserRequest = CreateUserRequest(
         uid = testUid,
         email = testEmail,
-        username = testUsername
+        username = testUsername,
+        profilePicture = testProfilePicture,
     )
 
     private val updateUserRequest = UpdateUserRequest(
         email = "updated@example.com",
-        username = "updateduser"
+        username = "updateduser",
+        profilePicture = testProfilePicture,
     )
 
     @Test
@@ -67,6 +71,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$[0].uid").value(testUid))
             .andExpect(jsonPath("$[0].email").value(testEmail))
             .andExpect(jsonPath("$[0].username").value(testUsername))
+            .andExpect(jsonPath("$[0].profilePicture").value(testProfilePicture))
     }
 
     @Test
@@ -81,6 +86,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
+            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
     }
 
     @Test
@@ -105,6 +111,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
+            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
     }
 
     @Test
@@ -131,6 +138,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
+            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
     }
 
     @Test
@@ -148,6 +156,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value("updated@example.com"))
             .andExpect(jsonPath("$.username").value("updateduser"))
+            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
     }
 
     @Test

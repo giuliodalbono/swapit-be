@@ -2,31 +2,26 @@ package io.github.giuliodalbono.swapit.model.entity
 
 import jakarta.persistence.*
 import org.hibernate.annotations.Generated
-import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.generator.EventType
-import org.hibernate.type.SqlTypes
 import java.io.Serializable
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "user")
-class User: Serializable {
+@Table(name = "skill_desired")
+class SkillDesired: Serializable {
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    var uid: String? = null
+    var id: Long? = null
 
     @Version
     var version: Long = 0
 
-    @Column(nullable = false, unique = true)
-    var email: String? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_uid", nullable = false)
+    var user: User? = null
 
-    @Column(nullable = false)
-    var username: String? = null
-
-    @Lob
-    @Column(columnDefinition = "BLOB")
-    var profilePicture: ByteArray? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "skill_id", nullable = false)
+    var skill: Skill? = null
 
     @Generated(event = [EventType.INSERT])
     @Column(updatable = false, nullable = false)
@@ -35,14 +30,6 @@ class User: Serializable {
     @Generated(event = [EventType.INSERT, EventType.UPDATE])
     @Column(nullable = false)
     lateinit var lastUpdate: LocalDateTime
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "user")
-    var skillDesired: Set<SkillDesired> = emptySet()
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "user")
-    var skilloffered: Set<SkillOffered> = emptySet()
 
     @PrePersist
     fun prePersist() {
@@ -61,16 +48,16 @@ class User: Serializable {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as User
+        other as SkillDesired
 
-        return uid == other.uid
+        return id == other.id
     }
 
     override fun hashCode(): Int {
-        return uid.hashCode()
+        return id?.hashCode() ?: 0
     }
 
     override fun toString(): String {
-        return "User(uid='$uid', email='$email', username='$username', version=$version, creationTime=$creationTime, lastUpdate=$lastUpdate)"
+        return "SkillDesired(id=$id, version=$version, user=${user?.uid}, skill=${skill?.label}, creationTime=$creationTime, lastUpdate=$lastUpdate)"
     }
 }

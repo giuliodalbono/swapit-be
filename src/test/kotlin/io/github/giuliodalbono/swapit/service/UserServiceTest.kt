@@ -31,12 +31,14 @@ class UserServiceTest {
     private val testUid = "test-uid"
     private val testEmail = "test@example.com"
     private val testUsername = "testuser"
+    private val testProfilePicture = byteArrayOf(10, 20, 30, 40, 50)
     private val testDateTime = LocalDateTime.now()
 
     private val testUser = User().apply {
         uid = testUid
         email = testEmail
         username = testUsername
+        profilePicture = testProfilePicture
         version = 0L
         creationTime = testDateTime
         lastUpdate = testDateTime
@@ -46,6 +48,7 @@ class UserServiceTest {
         uid = testUid,
         email = testEmail,
         username = testUsername,
+        profilePicture = testProfilePicture,
         version = 0L,
         creationTime = testDateTime,
         lastUpdate = testDateTime
@@ -54,12 +57,14 @@ class UserServiceTest {
     private val createUserRequest = CreateUserRequest(
         uid = testUid,
         email = testEmail,
-        username = testUsername
+        username = testUsername,
+        profilePicture = testProfilePicture,
     )
 
     private val updateUserRequest = UpdateUserRequest(
         email = "updated@example.com",
-        username = "updateduser"
+        username = "updateduser",
+        profilePicture = testProfilePicture,
     )
 
     @Test

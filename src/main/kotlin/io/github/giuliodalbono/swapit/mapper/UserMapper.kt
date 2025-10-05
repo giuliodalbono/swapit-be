@@ -14,6 +14,7 @@ class UserMapper {
             uid = user.uid!!,
             email = user.email!!,
             username = user.username!!,
+            profilePicture = user.profilePicture,
             version = user.version,
             creationTime = user.creationTime!!,
             lastUpdate = user.lastUpdate!!
@@ -25,12 +26,14 @@ class UserMapper {
             uid = createRequest.uid
             email = createRequest.email
             username = createRequest.username
+            profilePicture = createRequest.profilePicture
         }
     }
 
     fun updateEntity(user: User, updateRequest: UpdateUserRequest): User {
         user.email = updateRequest.email
         user.username = updateRequest.username
+        user.profilePicture = updateRequest.profilePicture
         return user
     }
 }

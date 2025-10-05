@@ -36,6 +36,14 @@ class Skill: Serializable {
     @Column(nullable = false)
     lateinit var lastUpdate: LocalDateTime
 
+    @OneToMany(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "skill")
+    var userDesiring: Set<User> = emptySet()
+
+    @OneToMany(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "skill")
+    var userOffering: Set<User> = emptySet()
+
     @PrePersist
     fun prePersist() {
         lastUpdate = LocalDateTime.now()

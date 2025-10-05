@@ -6,6 +6,7 @@ CREATE TABLE user (
     version BIGINT NOT NULL DEFAULT 0,
     email VARCHAR(255) NOT NULL UNIQUE,
     username VARCHAR(255) NOT NULL,
+    profile_picture LONGBLOB,
     creation_time DATETIME NOT NULL DEFAULT NOW(),
     last_update DATETIME NOT NULL DEFAULT NOW(),
     INDEX `user_idx_email` (email),
@@ -73,3 +74,35 @@ CREATE TABLE feedback (
 );
 -- rollback DROP TABLE
 -- rollback create-feedback
+
+-- changeset giuliodalbono:create-skill_offered
+CREATE TABLE skill_offered (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    version BIGINT NOT NULL DEFAULT 0,
+    user_uid VARCHAR(255) NOT NULL,
+    skill_id BIGINT NOT NULL,
+    creation_time DATETIME NOT NULL DEFAULT NOW(),
+    last_update DATETIME NOT NULL DEFAULT NOW(),
+    constraint fk_so_user foreign key (user_uid) references user (uid),
+    constraint fk_so_skill foreign key (skill_id) references skill (id),
+    constraint uk_so_user_skill unique (user_uid, skill_id),
+    INDEX `skill_offered_idx_last_update` (last_update)
+);
+-- rollback DROP TABLE
+-- rollback create-skill_offered
+
+-- changeset giuliodalbono:create-skill_desired
+CREATE TABLE skill_desired (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    version BIGINT NOT NULL DEFAULT 0,
+    user_uid VARCHAR(255) NOT NULL,
+    skill_id BIGINT NOT NULL,
+    creation_time DATETIME NOT NULL DEFAULT NOW(),
+    last_update DATETIME NOT NULL DEFAULT NOW(),
+    constraint fk_sd_user foreign key (user_uid) references user (uid),
+    constraint fk_sd_skill foreign key (skill_id) references skill (id),
+    constraint uk_sd_user_skill unique (user_uid, skill_id),
+    INDEX `skill_desired_idx_last_update` (last_update)
+);
+-- rollback DROP TABLE
+-- rollback create-skill_desired

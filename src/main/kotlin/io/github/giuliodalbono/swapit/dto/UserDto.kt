@@ -15,6 +15,9 @@ data class UserDto(
     @Schema(description = "Display name or username", example = "john_doe")
     val username: String,
 
+    @Schema(description = "User's profile picture")
+    val profilePicture: ByteArray?,
+
     @Schema(description = "Version number for optimistic locking", example = "1")
     val version: Long,
 
@@ -36,7 +39,10 @@ data class CreateUserRequest(
     val email: String,
 
     @Schema(description = "Display name or username", example = "john_doe", required = true)
-    val username: String
+    val username: String,
+
+    @Schema(description = "User's profile picture", required = false)
+    val profilePicture: ByteArray?
 )
 
 @Schema(description = "Request payload for updating an existing user")
@@ -45,5 +51,8 @@ data class UpdateUserRequest(
     val email: String,
 
     @Schema(description = "Display name or username", example = "john_doe", required = true)
-    val username: String
+    val username: String,
+
+    @Schema(description = "User's profile picture", required = false)
+val profilePicture: ByteArray?
 )
