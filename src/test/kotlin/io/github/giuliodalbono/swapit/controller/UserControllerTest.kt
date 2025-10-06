@@ -44,6 +44,8 @@ class UserControllerTest {
         email = testEmail,
         username = testUsername,
         profilePicture = testProfilePicture,
+        skillDesired = setOf(),
+        skillOffered = setOf(),
         version = 0L,
         creationTime = testDateTime,
         lastUpdate = testDateTime

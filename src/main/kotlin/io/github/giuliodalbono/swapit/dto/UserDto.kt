@@ -18,6 +18,12 @@ data class UserDto(
     @Schema(description = "User's profile picture")
     val profilePicture: ByteArray?,
 
+    @Schema(description = "Skills the user is interested in")
+    val skillDesired: Set<String>?,
+
+    @Schema(description = "Skills the user is willing to share his knowledge")
+    val skillOffered: Set<String>?,
+
     @Schema(description = "Version number for optimistic locking", example = "1")
     val version: Long,
 

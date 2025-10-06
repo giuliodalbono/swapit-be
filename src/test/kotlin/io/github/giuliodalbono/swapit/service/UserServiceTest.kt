@@ -51,6 +51,8 @@ class UserServiceTest {
         profilePicture = testProfilePicture,
         version = 0L,
         creationTime = testDateTime,
+        skillDesired = setOf(),
+        skillOffered = setOf(),
         lastUpdate = testDateTime
     )
 

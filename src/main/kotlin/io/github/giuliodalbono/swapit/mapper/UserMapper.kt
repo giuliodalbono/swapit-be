@@ -4,17 +4,24 @@ import io.github.giuliodalbono.swapit.dto.CreateUserRequest
 import io.github.giuliodalbono.swapit.dto.UpdateUserRequest
 import io.github.giuliodalbono.swapit.dto.UserDto
 import io.github.giuliodalbono.swapit.model.entity.User
+import io.github.giuliodalbono.swapit.service.SkillService
 import org.springframework.stereotype.Component
 
 @Component
-class UserMapper {
+class UserMapper(
+    private val skillService: SkillService
+) {
 
     fun toDto(user: User): UserDto {
+        val desired = skillService.findSkillDesiredByUserUid(user.uid!!).map { it.skill.label }.toSet()
+        val offered = skillService.findSkillOfferedByUserUid(user.uid!!).map { it.skill.label }.toSet()
         return UserDto(
             uid = user.uid!!,
             email = user.email!!,
             username = user.username!!,
             profilePicture = user.profilePicture,
+            skillDesired = desired,
+            skillOffered = offered,
             version = user.version,
             creationTime = user.creationTime!!,
             lastUpdate = user.lastUpdate!!
