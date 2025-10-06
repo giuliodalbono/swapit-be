@@ -6,7 +6,10 @@ import io.github.giuliodalbono.swapit.dto.UpdateUserRequest
 import io.github.giuliodalbono.swapit.dto.UserDto
 import io.github.giuliodalbono.swapit.service.UserService
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
@@ -16,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.time.LocalDateTime
 import java.util.*
+import java.util.Base64
 
 @WebMvcTest(UserController::class)
 class UserControllerTest {
@@ -31,7 +35,7 @@ class UserControllerTest {
 
     private val testUid = "test-uid"
     private val testEmail = "test@example.com"
-    private val testUsername = "testuser"
+    private val testUsername = "testUser"
     private val testProfilePicture = byteArrayOf(10, 20, 30, 40, 50)
     private val testDateTime = LocalDateTime.now()
 
@@ -54,15 +58,14 @@ class UserControllerTest {
 
     private val updateUserRequest = UpdateUserRequest(
         email = "updated@example.com",
-        username = "updateduser",
+        username = "updatedUser",
         profilePicture = testProfilePicture,
     )
 
     @Test
     fun `getAllUsers should return all users`() {
         // Given
-        val users = listOf(testUserDto)
-        `when`(userService.findAll()).thenReturn(users)
+        whenever(userService.findAll()).thenReturn(listOf(testUserDto))
 
         // When & Then
         mockMvc.perform(get("/api/users"))
@@ -71,132 +74,119 @@ class UserControllerTest {
             .andExpect(jsonPath("$[0].uid").value(testUid))
             .andExpect(jsonPath("$[0].email").value(testEmail))
             .andExpect(jsonPath("$[0].username").value(testUsername))
-            .andExpect(jsonPath("$[0].profilePicture").value(testProfilePicture))
+            .andExpect(jsonPath("$[0].profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
     }
 
     @Test
     fun `getUserByUid should return user when found`() {
-        // Given
-        `when`(userService.findByUid(testUid)).thenReturn(Optional.of(testUserDto))
+        whenever(userService.findByUid(testUid)).thenReturn(Optional.of(testUserDto))
 
-        // When & Then
         mockMvc.perform(get("/api/users/{uid}", testUid))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
     }
 
     @Test
     fun `getUserByUid should return 404 when not found`() {
-        // Given
-        `when`(userService.findByUid(testUid)).thenReturn(Optional.empty())
+        whenever(userService.findByUid(testUid)).thenReturn(Optional.empty())
 
-        // When & Then
         mockMvc.perform(get("/api/users/{uid}", testUid))
             .andExpect(status().isNotFound)
     }
 
     @Test
     fun `getUserByEmail should return user when found`() {
-        // Given
-        `when`(userService.findByEmail(testEmail)).thenReturn(Optional.of(testUserDto))
+        whenever(userService.findByEmail(testEmail)).thenReturn(Optional.of(testUserDto))
 
-        // When & Then
         mockMvc.perform(get("/api/users/email/{email}", testEmail))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
     }
 
     @Test
     fun `getUserByEmail should return 404 when not found`() {
-        // Given
-        `when`(userService.findByEmail(testEmail)).thenReturn(Optional.empty())
+        whenever(userService.findByEmail(testEmail)).thenReturn(Optional.empty())
 
-        // When & Then
         mockMvc.perform(get("/api/users/email/{email}", testEmail))
             .andExpect(status().isNotFound)
     }
 
     @Test
     fun `createUser should create and return user`() {
-        // Given
-        `when`(userService.save(createUserRequest)).thenReturn(testUserDto)
+        whenever(userService.save(any())).thenReturn(testUserDto)
 
-        // When & Then
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(
+            post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createUserRequest)))
+                .content(objectMapper.writeValueAsString(createUserRequest))
+        )
             .andExpect(status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
     }
 
     @Test
     fun `updateUser should update and return user when found`() {
-        // Given
-        val updatedUserDto = testUserDto.copy(email = "updated@example.com", username = "updateduser")
-        `when`(userService.update(testUid, updateUserRequest)).thenReturn(updatedUserDto)
+        val updatedUserDto = testUserDto.copy(email = "updated@example.com", username = "updatedUser")
+        whenever(userService.update(any(), any())).thenReturn(updatedUserDto)
 
-        // When & Then
-        mockMvc.perform(put("/api/users/{uid}", testUid)
+        mockMvc.perform(
+            put("/api/users/{uid}", testUid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateUserRequest)))
+                .content(objectMapper.writeValueAsString(updateUserRequest))
+        )
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value("updated@example.com"))
-            .andExpect(jsonPath("$.username").value("updateduser"))
-            .andExpect(jsonPath("$.profilePicture").value(testProfilePicture))
+            .andExpect(jsonPath("$.username").value("updatedUser"))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
     }
 
     @Test
     fun `updateUser should return 404 when user not found`() {
-        // Given
-        `when`(userService.update(testUid, updateUserRequest)).thenThrow(IllegalArgumentException("User not found"))
+        whenever(userService.update(any(), any()))
+            .thenThrow(IllegalArgumentException("User not found"))
 
-        // When & Then
-        mockMvc.perform(put("/api/users/{uid}", testUid)
+        mockMvc.perform(
+            put("/api/users/{uid}", testUid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateUserRequest)))
+                .content(objectMapper.writeValueAsString(updateUserRequest))
+        )
             .andExpect(status().isNotFound)
     }
 
     @Test
     fun `deleteUser should delete user when exists`() {
-        // Given
-        doNothing().`when`(userService).deleteById(testUid)
+        doNothing().whenever(userService).deleteById(testUid)
 
-        // When & Then
         mockMvc.perform(delete("/api/users/{uid}", testUid))
             .andExpect(status().isNoContent)
     }
 
     @Test
     fun `deleteUser should return 404 when user not found`() {
-        // Given
-        doThrow(IllegalArgumentException("User not found")).`when`(userService).deleteById(testUid)
+        doThrow(IllegalArgumentException("User not found")).whenever(userService).deleteById(testUid)
 
-        // When & Then
         mockMvc.perform(delete("/api/users/{uid}", testUid))
             .andExpect(status().isNotFound)
     }
 
     @Test
     fun `checkUserExists should return true when user exists`() {
-        // Given
-        `when`(userService.existsById(testUid)).thenReturn(true)
+        whenever(userService.existsById(testUid)).thenReturn(true)
 
-        // When & Then
         mockMvc.perform(get("/api/users/{uid}/exists", testUid))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -205,10 +195,8 @@ class UserControllerTest {
 
     @Test
     fun `checkUserExists should return false when user does not exist`() {
-        // Given
-        `when`(userService.existsById(testUid)).thenReturn(false)
+        whenever(userService.existsById(testUid)).thenReturn(false)
 
-        // When & Then
         mockMvc.perform(get("/api/users/{uid}/exists", testUid))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -217,10 +205,8 @@ class UserControllerTest {
 
     @Test
     fun `checkEmailExists should return true when email exists`() {
-        // Given
-        `when`(userService.existsByEmail(testEmail)).thenReturn(true)
+        whenever(userService.existsByEmail(testEmail)).thenReturn(true)
 
-        // When & Then
         mockMvc.perform(get("/api/users/email/{email}/exists", testEmail))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -229,10 +215,8 @@ class UserControllerTest {
 
     @Test
     fun `checkEmailExists should return false when email does not exist`() {
-        // Given
-        `when`(userService.existsByEmail(testEmail)).thenReturn(false)
+        whenever(userService.existsByEmail(testEmail)).thenReturn(false)
 
-        // When & Then
         mockMvc.perform(get("/api/users/email/{email}/exists", testEmail))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))

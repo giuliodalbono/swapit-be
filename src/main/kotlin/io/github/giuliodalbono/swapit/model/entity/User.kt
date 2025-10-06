@@ -42,7 +42,7 @@ class User: Serializable {
 
     @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinColumn(name = "user")
-    var skilloffered: Set<SkillOffered> = emptySet()
+    var skillOffered: Set<SkillOffered> = emptySet()
 
     @PrePersist
     fun prePersist() {
