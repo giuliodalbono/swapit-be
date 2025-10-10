@@ -15,6 +15,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import java.time.LocalDateTime
 import java.util.*
 
@@ -179,6 +180,7 @@ class FeedbackServiceTest {
         verify(userService, times(2)).findEntityByUid("user123")
         verify(feedbackRepository).save(testFeedback)
         verify(feedbackMapper).toDto(testFeedback)
+        verify(feedbackEventProducer).produceRateSkillEvent(testFeedbackDto)
     }
 
     @Test
@@ -194,6 +196,46 @@ class FeedbackServiceTest {
         verify(feedbackMapper).toEntity(createFeedbackRequest)
         verify(userService).findEntityByUid("user123")
         verify(feedbackRepository, never()).save(any())
+        verify(feedbackEventProducer, never()).produceRateSkillEvent(any())
+    }
+
+    @Test
+    fun `save should not produce event when database save fails`() {
+        // Given
+        `when`(feedbackMapper.toEntity(createFeedbackRequest)).thenReturn(testFeedback)
+        `when`(userService.findEntityByUid("user123")).thenReturn(Optional.of(testUser))
+        `when`(feedbackRepository.save(testFeedback)).thenThrow(RuntimeException("Database error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            feedbackService.save(createFeedbackRequest)
+        }
+        
+        verify(feedbackMapper).toEntity(createFeedbackRequest)
+        verify(userService, times(2)).findEntityByUid("user123")
+        verify(feedbackRepository).save(testFeedback)
+        verify(feedbackMapper, never()).toDto(testFeedback)
+        verify(feedbackEventProducer, never()).produceRateSkillEvent(any())
+    }
+
+    @Test
+    fun `save should not produce event when DTO mapping fails`() {
+        // Given
+        `when`(feedbackMapper.toEntity(createFeedbackRequest)).thenReturn(testFeedback)
+        `when`(userService.findEntityByUid("user123")).thenReturn(Optional.of(testUser))
+        `when`(feedbackRepository.save(testFeedback)).thenReturn(testFeedback)
+        `when`(feedbackMapper.toDto(testFeedback)).thenThrow(RuntimeException("Mapping error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            feedbackService.save(createFeedbackRequest)
+        }
+        
+        verify(feedbackMapper).toEntity(createFeedbackRequest)
+        verify(userService, times(2)).findEntityByUid("user123")
+        verify(feedbackRepository).save(testFeedback)
+        verify(feedbackMapper).toDto(testFeedback)
+        verify(feedbackEventProducer, never()).produceRateSkillEvent(any())
     }
 
     @Test
@@ -216,6 +258,7 @@ class FeedbackServiceTest {
         verify(userService, times(2)).findEntityByUid("user123")
         verify(feedbackRepository).save(testFeedback)
         verify(feedbackMapper).toDto(testFeedback)
+        verify(feedbackEventProducer, never()).produceRateSkillEvent(any())
     }
 
     @Test
@@ -230,6 +273,7 @@ class FeedbackServiceTest {
         verify(feedbackRepository).findById(testId)
         verify(feedbackMapper, never()).updateEntity(testFeedback, updateFeedbackRequest)
         verify(feedbackRepository, never()).save(testFeedback)
+        verify(feedbackEventProducer, never()).produceRateSkillEvent(any())
     }
 
     @Test
