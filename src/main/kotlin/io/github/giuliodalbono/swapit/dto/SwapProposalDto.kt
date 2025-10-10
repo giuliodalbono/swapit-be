@@ -42,16 +42,16 @@ data class SwapProposalDto(
     val lastUpdate: LocalDateTime,
 
     @Schema(description = "ID of the skill being offered in exchange", example = "1")
-    val skillOfferedId: Long?,
+    val skillOfferedId: Long,
 
     @Schema(description = "ID of the skill being requested in return", example = "2")
-    val skillRequestedId: Long?,
+    val skillRequestedId: Long,
 
     @Schema(description = "UID of the user who initiated the proposal", example = "user_12345")
-    val requestUserUid: String?,
+    val requestUserUid: String,
 
     @Schema(description = "UID of the user who is being proposed to", example = "user_67890")
-    val offerUserUid: String?
+    val offerUserUid: String
 )
 
 @Schema(description = "Request payload for creating a new swap proposal")

@@ -13,6 +13,7 @@ import java.util.HashMap
 @Table(name = "skill")
 class Skill: Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
     @Version
@@ -23,7 +24,7 @@ class Skill: Serializable {
 
     @Column(length = 10 * 1024 * 1024)
     @JdbcTypeCode(SqlTypes.JSON)
-    var metadata: MutableMap<String, String> = HashMap()
+    var metadata: MutableMap<String, String>? = HashMap()
 
     @Column
     var description: String? = null
@@ -36,13 +37,11 @@ class Skill: Serializable {
     @Column(nullable = false)
     lateinit var lastUpdate: LocalDateTime
 
-    @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "skill")
-    var userDesiring: Set<User> = emptySet()
+    @OneToMany(mappedBy = "skill", cascade = [CascadeType.ALL])
+    var skillDesired: Set<SkillDesired> = emptySet()
 
-    @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "skill")
-    var userOffering: Set<User> = emptySet()
+    @OneToMany(mappedBy = "skill", cascade = [CascadeType.ALL])
+    var skillOffered: Set<SkillOffered> = emptySet()
 
     @PrePersist
     fun prePersist() {

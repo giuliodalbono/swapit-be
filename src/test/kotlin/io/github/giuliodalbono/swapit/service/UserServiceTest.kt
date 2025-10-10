@@ -31,14 +31,14 @@ class UserServiceTest {
     private val testUid = "test-uid"
     private val testEmail = "test@example.com"
     private val testUsername = "testuser"
-    private val testProfilePicture = byteArrayOf(10, 20, 30, 40, 50)
+    private val testProfilePicture = "test-profile-picture"
     private val testDateTime = LocalDateTime.now()
 
     private val testUser = User().apply {
         uid = testUid
         email = testEmail
         username = testUsername
-        profilePicture = testProfilePicture
+        profilePicture = testProfilePicture.toByteArray()
         version = 0L
         creationTime = testDateTime
         lastUpdate = testDateTime
@@ -48,7 +48,7 @@ class UserServiceTest {
         uid = testUid,
         email = testEmail,
         username = testUsername,
-        profilePicture = testProfilePicture,
+        profilePicture = testProfilePicture.toByteArray(),
         version = 0L,
         creationTime = testDateTime,
         skillDesired = setOf(),

@@ -13,7 +13,7 @@ data class SkillDto(
     val label: String,
 
     @Schema(description = "Additional metadata as key-value pairs", example = "{\"level\": \"intermediate\", \"category\": \"programming\"}")
-    val metadata: Map<String, String>,
+    val metadata: Map<String, String>? = emptyMap(),
 
     @Schema(description = "Detailed description of the skill", example = "Proficiency in Java programming language including OOP concepts, collections, and frameworks")
     val description: String?,
@@ -36,7 +36,7 @@ data class CreateSkillRequest(
     val label: String,
 
     @Schema(description = "Additional metadata as key-value pairs", example = "{\"level\": \"intermediate\", \"category\": \"programming\"}")
-    val metadata: Map<String, String> = emptyMap(),
+    val metadata: Map<String, String>? = emptyMap(),
 
     @Schema(description = "Detailed description of the skill", example = "Proficiency in Java programming language including OOP concepts, collections, and frameworks")
     val description: String?
@@ -48,7 +48,7 @@ data class UpdateSkillRequest(
     val label: String,
 
     @Schema(description = "Additional metadata as key-value pairs", example = "{\"level\": \"intermediate\", \"category\": \"programming\"}", required = true)
-    val metadata: Map<String, String>,
+    val metadata: Map<String, String>?,
 
     @Schema(description = "Detailed description of the skill", example = "Proficiency in Java programming language including OOP concepts, collections, and frameworks")
     val description: String?

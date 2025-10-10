@@ -21,7 +21,7 @@ CREATE TABLE skill (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     version BIGINT NOT NULL DEFAULT 0,
     label VARCHAR(255) NOT NULL UNIQUE,
-    metadata TEXT,
+    metadata JSON,
     description VARCHAR(255),
     creation_time DATETIME NOT NULL DEFAULT NOW(),
     last_update DATETIME NOT NULL DEFAULT NOW(),

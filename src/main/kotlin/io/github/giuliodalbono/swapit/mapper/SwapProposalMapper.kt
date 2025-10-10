@@ -20,10 +20,10 @@ class SwapProposalMapper {
             version = swapProposal.version,
             creationTime = swapProposal.creationTime!!,
             lastUpdate = swapProposal.lastUpdate!!,
-            skillOfferedId = swapProposal.skillOffered?.id,
-            skillRequestedId = swapProposal.skillRequested?.id,
-            requestUserUid = swapProposal.requestUser?.uid,
-            offerUserUid = swapProposal.offerUser?.uid
+            skillOfferedId = swapProposal.skillOffered!!.id!!,
+            skillRequestedId = swapProposal.skillRequested!!.id!!,
+            requestUserUid = swapProposal.requestUser!!.uid!!,
+            offerUserUid = swapProposal.offerUser!!.uid!!
         )
     }
 

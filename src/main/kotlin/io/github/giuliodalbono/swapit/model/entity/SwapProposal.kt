@@ -13,6 +13,7 @@ import java.time.LocalTime
 @Table(name = "swap_proposal")
 class SwapProposal: Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
     @Version

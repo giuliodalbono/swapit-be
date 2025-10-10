@@ -1,5 +1,6 @@
 package io.github.giuliodalbono.swapit.exception
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -17,12 +18,14 @@ data class ErrorResponse(
 
 @ControllerAdvice
 class GlobalExceptionHandler {
+    private val logger = KotlinLogging.logger {}
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(
         e: IllegalArgumentException,
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
+        logger.error(e) { "IllegalArgumentException" }
         val errorResponse = ErrorResponse(
             status = HttpStatus.BAD_REQUEST.value(),
             error = "Bad Request",
@@ -37,6 +40,7 @@ class GlobalExceptionHandler {
         e: Exception,
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
+        logger.error(e) { "Unexpected error occurred" }
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             error = "Internal Server Error",

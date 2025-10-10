@@ -36,12 +36,10 @@ class User: Serializable {
     @Column(nullable = false)
     lateinit var lastUpdate: LocalDateTime
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var skillDesired: Set<SkillDesired> = emptySet()
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var skillOffered: Set<SkillOffered> = emptySet()
 
     @PrePersist

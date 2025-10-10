@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 @Table(name = "skill_offered")
 class SkillOffered: Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
     @Version

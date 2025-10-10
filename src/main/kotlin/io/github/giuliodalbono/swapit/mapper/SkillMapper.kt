@@ -24,14 +24,14 @@ class SkillMapper {
     fun toEntity(createRequest: CreateSkillRequest): Skill {
         return Skill().apply {
             label = createRequest.label
-            metadata = createRequest.metadata.toMutableMap()
+            metadata = createRequest.metadata?.toMutableMap()
             description = createRequest.description
         }
     }
 
     fun updateEntity(skill: Skill, updateRequest: UpdateSkillRequest): Skill {
         skill.label = updateRequest.label
-        skill.metadata = updateRequest.metadata.toMutableMap()
+        skill.metadata = updateRequest.metadata?.toMutableMap()
         skill.description = updateRequest.description
         return skill
     }

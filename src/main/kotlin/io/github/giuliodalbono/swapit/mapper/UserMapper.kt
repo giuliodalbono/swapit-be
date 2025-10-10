@@ -33,14 +33,14 @@ class UserMapper(
             uid = createRequest.uid
             email = createRequest.email
             username = createRequest.username
-            profilePicture = createRequest.profilePicture
+            profilePicture = createRequest.profilePicture?.toByteArray()
         }
     }
 
     fun updateEntity(user: User, updateRequest: UpdateUserRequest): User {
         user.email = updateRequest.email
         user.username = updateRequest.username
-        user.profilePicture = updateRequest.profilePicture
+        user.profilePicture = updateRequest.profilePicture?.toByteArray()
         return user
     }
 }

@@ -36,14 +36,14 @@ class UserControllerTest {
     private val testUid = "test-uid"
     private val testEmail = "test@example.com"
     private val testUsername = "testUser"
-    private val testProfilePicture = byteArrayOf(10, 20, 30, 40, 50)
+    private val testProfilePicture = "test-profile-picture"
     private val testDateTime = LocalDateTime.now()
 
     private val testUserDto = UserDto(
         uid = testUid,
         email = testEmail,
         username = testUsername,
-        profilePicture = testProfilePicture,
+        profilePicture = testProfilePicture.toByteArray(),
         skillDesired = setOf(),
         skillOffered = setOf(),
         version = 0L,
@@ -76,7 +76,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$[0].uid").value(testUid))
             .andExpect(jsonPath("$[0].email").value(testEmail))
             .andExpect(jsonPath("$[0].username").value(testUsername))
-            .andExpect(jsonPath("$[0].profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
+            .andExpect(jsonPath("$[0].profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture.toByteArray())))
     }
 
     @Test
@@ -89,7 +89,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture.toByteArray())))
     }
 
     @Test
@@ -110,7 +110,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture.toByteArray())))
     }
 
     @Test
@@ -135,7 +135,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value(testEmail))
             .andExpect(jsonPath("$.username").value(testUsername))
-            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture.toByteArray())))
     }
 
     @Test
@@ -153,7 +153,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.uid").value(testUid))
             .andExpect(jsonPath("$.email").value("updated@example.com"))
             .andExpect(jsonPath("$.username").value("updatedUser"))
-            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture)))
+            .andExpect(jsonPath("$.profilePicture").value(Base64.getEncoder().encodeToString(testProfilePicture.toByteArray())))
     }
 
     @Test

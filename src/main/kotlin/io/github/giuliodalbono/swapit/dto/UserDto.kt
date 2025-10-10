@@ -48,7 +48,7 @@ data class CreateUserRequest(
     val username: String,
 
     @Schema(description = "User's profile picture", required = false)
-    val profilePicture: ByteArray?
+    val profilePicture: String?
 )
 
 @Schema(description = "Request payload for updating an existing user")
@@ -60,5 +60,5 @@ data class UpdateUserRequest(
     val username: String,
 
     @Schema(description = "User's profile picture", required = false)
-val profilePicture: ByteArray?
+    val profilePicture: String?
 )
