@@ -9,6 +9,7 @@ import io.github.giuliodalbono.swapit.model.entity.SwapProposal
 import io.github.giuliodalbono.swapit.model.entity.Skill
 import io.github.giuliodalbono.swapit.model.entity.User
 import io.github.giuliodalbono.swapit.model.repository.SwapProposalRepository
+import io.github.giuliodalbono.swapit.service.producer.SwapProposalEventProducer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -25,16 +27,19 @@ import java.util.*
 class SwapProposalServiceTest {
 
     @Mock
-    private lateinit var swapProposalRepository: SwapProposalRepository
+    private lateinit var userService: UserService
+
+    @Mock
+    private lateinit var skillService: SkillService
 
     @Mock
     private lateinit var swapProposalMapper: SwapProposalMapper
 
     @Mock
-    private lateinit var userService: UserService
+    private lateinit var swapProposalRepository: SwapProposalRepository
 
     @Mock
-    private lateinit var skillService: SkillService
+    private lateinit var swapProposalEventProducer: SwapProposalEventProducer
 
     @InjectMocks
     private lateinit var swapProposalService: SwapProposalService
@@ -258,6 +263,107 @@ class SwapProposalServiceTest {
         verify(skillService, times(2)).findEntityById(1L)
         verify(swapProposalRepository).save(testSwapProposal)
         verify(swapProposalMapper).toDto(testSwapProposal)
+        verify(swapProposalEventProducer).produceSwappedEvent(updatedSwapProposalDto)
+    }
+
+    @Test
+    fun `update should not produce event when status does not change to ACCEPTED`() {
+        // Given
+        val updateRequestNoStatusChange = updateSwapProposalRequest.copy(status = SwapProposalStatus.REJECTED)
+        val updatedSwapProposalDto = testSwapProposalDto.copy(status = SwapProposalStatus.REJECTED)
+        `when`(swapProposalRepository.findById(testId)).thenReturn(Optional.of(testSwapProposal))
+        `when`(swapProposalMapper.updateEntity(testSwapProposal, updateRequestNoStatusChange)).thenReturn(testSwapProposal)
+        `when`(userService.findEntityByUid("user123")).thenReturn(Optional.of(testUser))
+        `when`(skillService.findEntityById(1L)).thenReturn(Optional.of(testSkill))
+        `when`(swapProposalRepository.save(testSwapProposal)).thenReturn(testSwapProposal)
+        `when`(swapProposalMapper.toDto(testSwapProposal)).thenReturn(updatedSwapProposalDto)
+
+        // When
+        val result = swapProposalService.update(testId, updateRequestNoStatusChange)
+
+        // Then
+        assert(result == updatedSwapProposalDto)
+        verify(swapProposalRepository).findById(testId)
+        verify(swapProposalMapper).updateEntity(testSwapProposal, updateRequestNoStatusChange)
+        verify(userService, times(2)).findEntityByUid("user123")
+        verify(skillService, times(2)).findEntityById(1L)
+        verify(swapProposalRepository).save(testSwapProposal)
+        verify(swapProposalMapper).toDto(testSwapProposal)
+        verify(swapProposalEventProducer, never()).produceSwappedEvent(any())
+    }
+
+    @Test
+    fun `update should not produce event when status was already ACCEPTED`() {
+        // Given
+        val alreadyAcceptedProposal = testSwapProposal.apply { status = SwapProposalStatus.ACCEPTED }
+        val updateRequestAccepted = updateSwapProposalRequest.copy(status = SwapProposalStatus.ACCEPTED)
+        val updatedSwapProposalDto = testSwapProposalDto.copy(status = SwapProposalStatus.ACCEPTED)
+        `when`(swapProposalRepository.findById(testId)).thenReturn(Optional.of(alreadyAcceptedProposal))
+        `when`(swapProposalMapper.updateEntity(alreadyAcceptedProposal, updateRequestAccepted)).thenReturn(alreadyAcceptedProposal)
+        `when`(userService.findEntityByUid("user123")).thenReturn(Optional.of(testUser))
+        `when`(skillService.findEntityById(1L)).thenReturn(Optional.of(testSkill))
+        `when`(swapProposalRepository.save(alreadyAcceptedProposal)).thenReturn(alreadyAcceptedProposal)
+        `when`(swapProposalMapper.toDto(alreadyAcceptedProposal)).thenReturn(updatedSwapProposalDto)
+
+        // When
+        val result = swapProposalService.update(testId, updateRequestAccepted)
+
+        // Then
+        assert(result == updatedSwapProposalDto)
+        verify(swapProposalRepository).findById(testId)
+        verify(swapProposalMapper).updateEntity(alreadyAcceptedProposal, updateRequestAccepted)
+        verify(userService, times(2)).findEntityByUid("user123")
+        verify(skillService, times(2)).findEntityById(1L)
+        verify(swapProposalRepository).save(alreadyAcceptedProposal)
+        verify(swapProposalMapper).toDto(alreadyAcceptedProposal)
+        verify(swapProposalEventProducer, never()).produceSwappedEvent(any())
+    }
+
+    @Test
+    fun `update should not produce event when DTO mapping fails`() {
+        // Given
+        `when`(swapProposalRepository.findById(testId)).thenReturn(Optional.of(testSwapProposal))
+        `when`(swapProposalMapper.updateEntity(testSwapProposal, updateSwapProposalRequest)).thenReturn(testSwapProposal)
+        `when`(userService.findEntityByUid("user123")).thenReturn(Optional.of(testUser))
+        `when`(skillService.findEntityById(1L)).thenReturn(Optional.of(testSkill))
+        `when`(swapProposalRepository.save(testSwapProposal)).thenReturn(testSwapProposal)
+        `when`(swapProposalMapper.toDto(testSwapProposal)).thenThrow(RuntimeException("Mapping error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            swapProposalService.update(testId, updateSwapProposalRequest)
+        }
+        
+        verify(swapProposalRepository).findById(testId)
+        verify(swapProposalMapper).updateEntity(testSwapProposal, updateSwapProposalRequest)
+        verify(userService, times(2)).findEntityByUid("user123")
+        verify(skillService, times(2)).findEntityById(1L)
+        verify(swapProposalRepository).save(testSwapProposal)
+        verify(swapProposalMapper).toDto(testSwapProposal)
+        verify(swapProposalEventProducer, never()).produceSwappedEvent(any())
+    }
+
+    @Test
+    fun `update should not produce event when database save fails`() {
+        // Given
+        `when`(swapProposalRepository.findById(testId)).thenReturn(Optional.of(testSwapProposal))
+        `when`(swapProposalMapper.updateEntity(testSwapProposal, updateSwapProposalRequest)).thenReturn(testSwapProposal)
+        `when`(userService.findEntityByUid("user123")).thenReturn(Optional.of(testUser))
+        `when`(skillService.findEntityById(1L)).thenReturn(Optional.of(testSkill))
+        `when`(swapProposalRepository.save(testSwapProposal)).thenThrow(RuntimeException("Database error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            swapProposalService.update(testId, updateSwapProposalRequest)
+        }
+        
+        verify(swapProposalRepository).findById(testId)
+        verify(swapProposalMapper).updateEntity(testSwapProposal, updateSwapProposalRequest)
+        verify(userService, times(2)).findEntityByUid("user123")
+        verify(skillService, times(2)).findEntityById(1L)
+        verify(swapProposalRepository).save(testSwapProposal)
+        verify(swapProposalMapper, never()).toDto(testSwapProposal)
+        verify(swapProposalEventProducer, never()).produceSwappedEvent(any())
     }
 
     @Test

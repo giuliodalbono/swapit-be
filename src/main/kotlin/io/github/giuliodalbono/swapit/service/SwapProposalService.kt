@@ -6,6 +6,7 @@ import io.github.giuliodalbono.swapit.dto.UpdateSwapProposalRequest
 import io.github.giuliodalbono.swapit.mapper.SwapProposalMapper
 import io.github.giuliodalbono.swapit.model.SwapProposalStatus
 import io.github.giuliodalbono.swapit.model.repository.SwapProposalRepository
+import io.github.giuliodalbono.swapit.service.producer.SwapProposalEventProducer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -13,10 +14,11 @@ import java.util.*
 @Service
 @Transactional
 class SwapProposalService(
-    private val swapProposalRepository: SwapProposalRepository,
-    private val swapProposalMapper: SwapProposalMapper,
     private val userService: UserService,
-    private val skillService: SkillService
+    private val skillService: SkillService,
+    private val swapProposalMapper: SwapProposalMapper,
+    private val swapProposalRepository: SwapProposalRepository,
+    private val swapProposalEventProducer: SwapProposalEventProducer
 ) {
 
     fun findAll(): List<SwapProposalDto> = swapProposalRepository.findAll().map { swapProposalMapper.toDto(it) }
@@ -57,6 +59,7 @@ class SwapProposalService(
         val existingProposal = swapProposalRepository.findById(id)
             .orElseThrow { IllegalArgumentException("SwapProposal with id $id not found") }
         
+        val previousStatus = existingProposal.status!!
         val updatedProposal = swapProposalMapper.updateEntity(existingProposal, updateRequest)
 
         val requestUser = userService.findEntityByUid(updateRequest.requestUserUid)
@@ -74,7 +77,11 @@ class SwapProposalService(
         updatedProposal.skillRequested = skillRequested
         
         val savedProposal = swapProposalRepository.save(updatedProposal)
-        return swapProposalMapper.toDto(savedProposal)
+        val savedProposalDto = swapProposalMapper.toDto(savedProposal)
+
+        sendSkillSwappedEventIfAcceptedChangeStatus(previousStatus, savedProposalDto)
+
+        return savedProposalDto
     }
 
     fun deleteById(id: Long) {
@@ -85,4 +92,10 @@ class SwapProposalService(
     }
 
     fun existsById(id: Long): Boolean = swapProposalRepository.existsById(id)
+
+    private fun sendSkillSwappedEventIfAcceptedChangeStatus(previousStatus: SwapProposalStatus, swapProposal: SwapProposalDto) {
+        if (previousStatus != SwapProposalStatus.ACCEPTED && swapProposal.status == SwapProposalStatus.ACCEPTED) {
+            swapProposalEventProducer.produceSwappedEvent(swapProposal)
+        }
+    }
 }
