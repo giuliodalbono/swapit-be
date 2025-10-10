@@ -19,10 +19,11 @@ class SkillService(
     private val skillRepository: SkillRepository,
     private val skillMapper: SkillMapper,
     private val userRepository: UserRepository,
+    private val skillEventProducer: SkillEventProducer,
     private val skillDesiredMapper: SkillDesiredMapper,
     private val skillOfferedMapper: SkillOfferedMapper,
     private val skillDesiredRepository: SkillDesiredRepository,
-    private val skillOfferedRepository: SkillOfferedRepository,
+    private val skillOfferedRepository: SkillOfferedRepository
 ) {
 
     fun findAll(): List<SkillDto> = skillRepository.findAll().map { skillMapper.toDto(it) }
@@ -34,7 +35,12 @@ class SkillService(
     fun save(createRequest: CreateSkillRequest): SkillDto {
         val skill = skillMapper.toEntity(createRequest)
         val savedSkill = skillRepository.save(skill)
-        return skillMapper.toDto(savedSkill)
+
+        val skillDto = skillMapper.toDto(savedSkill)
+
+        skillEventProducer.produceCreateSkillEvent(skillDto)
+
+        return skillDto
     }
 
     fun update(id: Long, updateRequest: UpdateSkillRequest): SkillDto {

@@ -11,7 +11,11 @@ import org.springframework.context.annotation.Import
 import java.util.*
 
 @SpringBootApplication
-class SwapItBeApplication
+class SwapItBeApplication {
+    companion object {
+        const val APPLICATION_NAME = "SwapItBe"
+    }
+}
 
 fun main(args: Array<String>) {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Rome"))

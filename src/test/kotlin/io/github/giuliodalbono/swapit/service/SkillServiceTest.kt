@@ -35,6 +35,9 @@ class SkillServiceTest {
     private lateinit var userRepository: UserRepository
 
     @Mock
+    private lateinit var skillEventProducer: SkillEventProducer
+
+    @Mock
     private lateinit var skillDesiredMapper: SkillDesiredMapper
 
     @Mock
