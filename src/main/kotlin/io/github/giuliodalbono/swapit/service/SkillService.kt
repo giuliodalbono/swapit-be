@@ -49,7 +49,12 @@ class SkillService(
 
         val updatedSkill = skillMapper.updateEntity(existingSkill, updateRequest)
         val savedSkill = skillRepository.save(updatedSkill)
-        return skillMapper.toDto(savedSkill)
+
+        val skillDto = skillMapper.toDto(savedSkill)
+
+        skillEventProducer.produceUpdateSkillEvent(skillDto)
+
+        return skillDto
     }
 
     fun deleteById(id: Long) {

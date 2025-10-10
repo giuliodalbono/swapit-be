@@ -235,6 +235,7 @@ class SkillServiceTest {
         verify(skillMapper).toEntity(createSkillRequest)
         verify(skillRepository).save(testSkill)
         verify(skillMapper).toDto(testSkill)
+        verify(skillEventProducer, never()).produceUpdateSkillEvent(any())
         verify(skillEventProducer).produceCreateSkillEvent(testSkillDto)
     }
 
@@ -252,6 +253,7 @@ class SkillServiceTest {
         verify(skillMapper).toEntity(createSkillRequest)
         verify(skillRepository).save(testSkill)
         verify(skillMapper, never()).toDto(testSkill)
+        verify(skillEventProducer, never()).produceUpdateSkillEvent(any())
         verify(skillEventProducer, never()).produceCreateSkillEvent(any())
     }
 
@@ -270,6 +272,7 @@ class SkillServiceTest {
         verify(skillMapper).toEntity(createSkillRequest)
         verify(skillRepository).save(testSkill)
         verify(skillMapper).toDto(testSkill)
+        verify(skillEventProducer, never()).produceUpdateSkillEvent(any())
         verify(skillEventProducer, never()).produceCreateSkillEvent(any())
     }
 
@@ -292,6 +295,7 @@ class SkillServiceTest {
         verify(skillRepository).save(testSkill)
         verify(skillMapper).toDto(testSkill)
         verify(skillEventProducer, never()).produceCreateSkillEvent(any())
+        verify(skillEventProducer).produceUpdateSkillEvent(any())
     }
 
     @Test
@@ -303,9 +307,53 @@ class SkillServiceTest {
         assertThrows<IllegalArgumentException> {
             skillService.update(testId, updateSkillRequest)
         }
+
         verify(skillRepository).findById(testId)
         verify(skillMapper, never()).updateEntity(testSkill, updateSkillRequest)
         verify(skillRepository, never()).save(testSkill)
+        verify(skillEventProducer, never()).produceCreateSkillEvent(any())
+        verify(skillEventProducer, never()).produceUpdateSkillEvent(any())
+    }
+
+    @Test
+    fun `update should not produce event when skill update fails`() {
+        // Given
+        `when`(skillRepository.findById(testId)).thenReturn(Optional.of(testSkill))
+        `when`(skillMapper.updateEntity(testSkill, updateSkillRequest)).thenReturn(testSkill)
+        `when`(skillRepository.save(testSkill)).thenThrow(RuntimeException("Database error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            skillService.update(testId, updateSkillRequest)
+        }
+
+        verify(skillRepository).findById(testId)
+        verify(skillMapper).updateEntity(testSkill, updateSkillRequest)
+        verify(skillRepository).save(testSkill)
+        verify(skillMapper, never()).toDto(testSkill)
+        verify(skillEventProducer, never()).produceUpdateSkillEvent(any())
+        verify(skillEventProducer, never()).produceCreateSkillEvent(any())
+    }
+
+    @Test
+    fun `update should not produce event when DTO mapping fails`() {
+        // Given
+        `when`(skillRepository.findById(testId)).thenReturn(Optional.of(testSkill))
+        `when`(skillMapper.updateEntity(testSkill, updateSkillRequest)).thenReturn(testSkill)
+        `when`(skillRepository.save(testSkill)).thenReturn(testSkill)
+        `when`(skillMapper.toDto(testSkill)).thenThrow(RuntimeException("Mapping error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            skillService.update(testId, updateSkillRequest)
+        }
+
+        verify(skillRepository).findById(testId)
+        verify(skillMapper).updateEntity(testSkill, updateSkillRequest)
+        verify(skillRepository).save(testSkill)
+        verify(skillMapper).toDto(testSkill)
+        verify(skillEventProducer, never()).produceUpdateSkillEvent(any())
+        verify(skillEventProducer, never()).produceCreateSkillEvent(any())
     }
 
     @Test
