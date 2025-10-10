@@ -2,6 +2,7 @@ package io.github.giuliodalbono.swapit.dto
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Email
 import java.time.LocalDateTime
 
 @Schema(description = "User information and profile data")
@@ -9,6 +10,7 @@ data class UserDto(
     @Schema(description = "Unique identifier for the user", example = "user_12345")
     val uid: String,
 
+    @Email
     @Schema(description = "User's email address", example = "john.doe@example.com")
     val email: String,
 
