@@ -19,6 +19,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import java.time.LocalDateTime
 import java.util.*
 
@@ -234,6 +235,42 @@ class SkillServiceTest {
         verify(skillMapper).toEntity(createSkillRequest)
         verify(skillRepository).save(testSkill)
         verify(skillMapper).toDto(testSkill)
+        verify(skillEventProducer).produceCreateSkillEvent(testSkillDto)
+    }
+
+    @Test
+    fun `save should not produce event when skill creation fails`() {
+        // Given
+        `when`(skillMapper.toEntity(createSkillRequest)).thenReturn(testSkill)
+        `when`(skillRepository.save(testSkill)).thenThrow(RuntimeException("Database error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            skillService.save(createSkillRequest)
+        }
+
+        verify(skillMapper).toEntity(createSkillRequest)
+        verify(skillRepository).save(testSkill)
+        verify(skillMapper, never()).toDto(testSkill)
+        verify(skillEventProducer, never()).produceCreateSkillEvent(any())
+    }
+
+    @Test
+    fun `save should not produce event when DTO mapping fails`() {
+        // Given
+        `when`(skillMapper.toEntity(createSkillRequest)).thenReturn(testSkill)
+        `when`(skillRepository.save(testSkill)).thenReturn(testSkill)
+        `when`(skillMapper.toDto(testSkill)).thenThrow(RuntimeException("Mapping error"))
+
+        // When & Then
+        assertThrows<RuntimeException> {
+            skillService.save(createSkillRequest)
+        }
+        
+        verify(skillMapper).toEntity(createSkillRequest)
+        verify(skillRepository).save(testSkill)
+        verify(skillMapper).toDto(testSkill)
+        verify(skillEventProducer, never()).produceCreateSkillEvent(any())
     }
 
     @Test
@@ -254,6 +291,7 @@ class SkillServiceTest {
         verify(skillMapper).updateEntity(testSkill, updateSkillRequest)
         verify(skillRepository).save(testSkill)
         verify(skillMapper).toDto(testSkill)
+        verify(skillEventProducer, never()).produceCreateSkillEvent(any())
     }
 
     @Test
