@@ -1,6 +1,7 @@
 package io.github.giuliodalbono.swapit.service
 
 import io.github.giuliodalbono.swapit.SwapItBeApplication
+import io.github.giuliodalbono.swapit.annotation.AfterCommit
 import io.github.giuliodalbono.swapit.mapper.ObjectMapperFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.cloud.function.cloudevent.CloudEventMessageBuilder
@@ -31,6 +32,11 @@ class CloudEventService(
         log.info { "Publishing to topic: $bindingName \n $event" }
         streamBridge.send(bindingName, event)
         return event
+    }
+
+    @AfterCommit
+    fun sendCloudEventAfterCommit(cloudEventContext: CloudEventContext, bindingName: String): Message<String> {
+        return sendCloudEvent(cloudEventContext, bindingName)
     }
 
     private fun buildMessage(cloudEventContext: CloudEventContext): Message<String> {

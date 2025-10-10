@@ -17,11 +17,11 @@ class SkillEventProducer(
 
     fun produceCreateSkillEvent(skill: SkillDto) {
         val cloudEventContext = CloudEventContext(subject = SKILL_SUBJECT, type = CREATE_TYPE, data = skill)
-        cloudEventService.sendCloudEvent(cloudEventContext, SKILL_TOPIC)
+        cloudEventService.sendCloudEventAfterCommit(cloudEventContext, SKILL_TOPIC)
     }
 
     fun produceUpdateSkillEvent(skill: SkillDto) {
         val cloudEventContext = CloudEventContext(subject = SKILL_SUBJECT, type = UPDATE_TYPE, data = skill)
-        cloudEventService.sendCloudEvent(cloudEventContext, SKILL_TOPIC)
+        cloudEventService.sendCloudEventAfterCommit(cloudEventContext, SKILL_TOPIC)
     }
 }
