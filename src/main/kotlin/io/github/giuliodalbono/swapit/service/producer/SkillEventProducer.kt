@@ -1,6 +1,8 @@
-package io.github.giuliodalbono.swapit.service
+package io.github.giuliodalbono.swapit.service.producer
 
 import io.github.giuliodalbono.swapit.dto.SkillDto
+import io.github.giuliodalbono.swapit.service.CloudEventContext
+import io.github.giuliodalbono.swapit.service.CloudEventService
 import org.springframework.stereotype.Service
 
 @Service

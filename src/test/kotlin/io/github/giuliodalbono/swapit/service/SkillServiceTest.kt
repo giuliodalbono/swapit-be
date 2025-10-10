@@ -12,6 +12,7 @@ import io.github.giuliodalbono.swapit.model.repository.SkillDesiredRepository
 import io.github.giuliodalbono.swapit.model.repository.SkillOfferedRepository
 import io.github.giuliodalbono.swapit.model.repository.SkillRepository
 import io.github.giuliodalbono.swapit.model.repository.UserRepository
+import io.github.giuliodalbono.swapit.service.producer.SkillEventProducer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith

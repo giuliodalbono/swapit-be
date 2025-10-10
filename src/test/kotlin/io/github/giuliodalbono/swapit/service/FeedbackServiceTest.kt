@@ -7,6 +7,7 @@ import io.github.giuliodalbono.swapit.mapper.FeedbackMapper
 import io.github.giuliodalbono.swapit.model.entity.Feedback
 import io.github.giuliodalbono.swapit.model.entity.User
 import io.github.giuliodalbono.swapit.model.repository.FeedbackRepository
+import io.github.giuliodalbono.swapit.service.producer.FeedbackEventProducer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -21,13 +22,16 @@ import java.util.*
 class FeedbackServiceTest {
 
     @Mock
-    private lateinit var feedbackRepository: FeedbackRepository
+    private lateinit var userService: UserService
 
     @Mock
     private lateinit var feedbackMapper: FeedbackMapper
 
     @Mock
-    private lateinit var userService: UserService
+    private lateinit var feedbackRepository: FeedbackRepository
+
+    @Mock
+    private lateinit var feedbackEventProducer: FeedbackEventProducer
 
     @InjectMocks
     private lateinit var feedbackService: FeedbackService

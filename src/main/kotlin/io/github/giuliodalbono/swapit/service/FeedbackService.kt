@@ -5,6 +5,7 @@ import io.github.giuliodalbono.swapit.dto.FeedbackDto
 import io.github.giuliodalbono.swapit.dto.UpdateFeedbackRequest
 import io.github.giuliodalbono.swapit.mapper.FeedbackMapper
 import io.github.giuliodalbono.swapit.model.repository.FeedbackRepository
+import io.github.giuliodalbono.swapit.service.producer.FeedbackEventProducer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -12,9 +13,10 @@ import java.util.*
 @Service
 @Transactional
 class FeedbackService(
-    private val feedbackRepository: FeedbackRepository,
+    private val userService: UserService,
     private val feedbackMapper: FeedbackMapper,
-    private val userService: UserService
+    private val feedbackRepository: FeedbackRepository,
+    private val feedbackEventProducer: FeedbackEventProducer
 ) {
 
     fun findAll(): List<FeedbackDto> = feedbackRepository.findAll().map { feedbackMapper.toDto(it) }
@@ -37,9 +39,14 @@ class FeedbackService(
         
         feedback.reviewer = reviewer
         feedback.reviewed = reviewed
-        
+
         val savedFeedback = feedbackRepository.save(feedback)
-        return feedbackMapper.toDto(savedFeedback)
+
+        val feedbackDto = feedbackMapper.toDto(savedFeedback)
+
+        feedbackEventProducer.produceRateSkillEvent(feedbackDto)
+
+        return feedbackDto
     }
 
     fun update(id: Long, updateRequest: UpdateFeedbackRequest): FeedbackDto {
