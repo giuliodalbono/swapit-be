@@ -16,6 +16,7 @@ import java.util.*
 class SwapProposalService(
     private val userService: UserService,
     private val skillService: SkillService,
+    private val calendarService: CalendarService,
     private val swapProposalMapper: SwapProposalMapper,
     private val swapProposalRepository: SwapProposalRepository,
     private val swapProposalEventProducer: SwapProposalEventProducer
@@ -70,7 +71,7 @@ class SwapProposalService(
             .orElseThrow { IllegalArgumentException("Skill offered with id ${updateRequest.skillOfferedId} not found") }
         val skillRequested = skillService.findEntityById(updateRequest.skillRequestedId)
             .orElseThrow { IllegalArgumentException("Skill requested with id ${updateRequest.skillRequestedId} not found") }
-        
+
         updatedProposal.requestUser = requestUser
         updatedProposal.offerUser = offerUser
         updatedProposal.skillOffered = skillOffered
@@ -79,7 +80,14 @@ class SwapProposalService(
         val savedProposal = swapProposalRepository.save(updatedProposal)
         val savedProposalDto = swapProposalMapper.toDto(savedProposal)
 
-        sendSkillSwappedEventIfAcceptedChangeStatus(previousStatus, savedProposalDto)
+        if (previousStatus != SwapProposalStatus.ACCEPTED && savedProposalDto.status == SwapProposalStatus.ACCEPTED) {
+            // If status changes to ACCEPTED
+            swapProposalEventProducer.produceSwappedEvent(savedProposalDto)
+
+            // Commented out because if no credentials set in local, it will always throw exception
+            // val gCalendarEventDto = swapProposalMapper.toGCalendarEventDto(savedProposal)
+            // calendarService.createEventUsingOAuth2AfterCommit(gCalendarEventDto)
+        }
 
         return savedProposalDto
     }
@@ -92,10 +100,4 @@ class SwapProposalService(
     }
 
     fun existsById(id: Long): Boolean = swapProposalRepository.existsById(id)
-
-    private fun sendSkillSwappedEventIfAcceptedChangeStatus(previousStatus: SwapProposalStatus, swapProposal: SwapProposalDto) {
-        if (previousStatus != SwapProposalStatus.ACCEPTED && swapProposal.status == SwapProposalStatus.ACCEPTED) {
-            swapProposalEventProducer.produceSwappedEvent(swapProposal)
-        }
-    }
 }
