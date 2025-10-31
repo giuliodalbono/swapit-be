@@ -8,9 +8,9 @@ spring:
     name: swapit-be
 
   datasource:
-    url: jdbc:mysql://localhost:3306/swapit?useSSL=FALSE&allowPublicKeyRetrieval=true
-    username: root
-    password: password
+    url: ${DB_URL:jdbc:mysql://localhost:3306/swapit?useSSL=FALSE&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
 
   liquibase:
     enabled: true
@@ -29,6 +29,12 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${KAFKA_BROKERS:localhost:9092}
 
 springdoc:
   api-docs:

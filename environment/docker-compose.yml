@@ -17,9 +17,9 @@ services:
     depends_on:
       - zookeeper
     ports:
-    # Exposes 29092 for external connections to the broker
-    # Use broker:9092 for connections internal on the docker network
-    # See https://rmoff.net/2018/08/02/kafka-listeners-explained/ for details
+      # Exposes 9092 for external connections to the broker
+      # Use broker:29092 for connections internal on the docker network
+      # See https://rmoff.net/2018/08/02/kafka-listeners-explained/ for details
       - "9092:9092"
     environment:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
@@ -37,6 +37,7 @@ services:
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.2.15
+    container_name: schema-registry
     restart: always
     depends_on:
       - zookeeper
@@ -50,6 +51,7 @@ services:
 
   db-mysql:
     image: mysql:8.0
+    container_name: db-mysql
     restart: always
     environment:
       MYSQL_DATABASE: 'swapit'
@@ -62,3 +64,37 @@ services:
       - '3306'
     volumes:
       - ./mysql-volume/swapit:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  swapit-be:
+    image: io.github.giuliodalbono/swapit-be:0.1.0-SNAPSHOT
+    container_name: swapit-be
+    restart: always
+    depends_on:
+      db-mysql:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://db-mysql:3306/swapit?useSSL=FALSE&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      KAFKA_BROKERS: broker:29092
+    volumes:
+      - ../email-credentials/swapit-be-oauth2-credentials.json:/app/email-credentials/swapit-be-oauth2-credentials.json:ro
+      - swapit-tokens:/app/email-credentials/tokens
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-check-certificate --spider -q http://localhost:8080/SwapItBe/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  swapit-tokens:
