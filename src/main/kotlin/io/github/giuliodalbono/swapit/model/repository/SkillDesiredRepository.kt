@@ -4,6 +4,8 @@ import io.github.giuliodalbono.swapit.model.entity.SkillDesired
 import io.github.giuliodalbono.swapit.model.entity.User
 import io.github.giuliodalbono.swapit.model.entity.Skill
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
 import java.util.*
 
 interface SkillDesiredRepository: JpaRepository<SkillDesired, Long> {
@@ -12,5 +14,7 @@ interface SkillDesiredRepository: JpaRepository<SkillDesired, Long> {
     fun findBySkill(skill: Skill): List<SkillDesired>
     fun findByUserAndSkill(user: User, skill: Skill): Optional<SkillDesired>
     fun existsByUserAndSkill(user: User, skill: Skill): Boolean
-    fun deleteByUserAndSkill(user: User, skill: Skill)
+    @Modifying
+    @Query("DELETE FROM SkillDesired so WHERE so.user.uid = :userUid AND so.skill.id = :skillId")
+    fun deleteByUserUidAndSkillId(userUid: String, skillId: Long): Int
 }

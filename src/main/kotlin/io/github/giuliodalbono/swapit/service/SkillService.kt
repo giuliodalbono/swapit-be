@@ -119,12 +119,14 @@ class SkillService(
     }
 
     fun deleteSkillDesiredByUserAndSkill(userUid: String, skillId: Long) {
-        val user = userRepository.findById(userUid)
+        userRepository.findById(userUid)
             .orElseThrow { IllegalArgumentException("User with uid $userUid not found") }
-        val skill = skillRepository.findById(skillId)
+        skillRepository.findById(skillId)
             .orElseThrow { IllegalArgumentException("Skill with id $skillId not found") }
 
-        skillDesiredRepository.deleteByUserAndSkill(user, skill)
+        if (skillDesiredRepository.deleteByUserUidAndSkillId(userUid, skillId) <= 0) {
+            throw IllegalArgumentException("SkillDesired with user uid $userUid and skill id $skillId not found")
+        }
     }
 
     fun existsSkillDesiredById(id: Long): Boolean = skillDesiredRepository.existsById(id)
@@ -185,12 +187,14 @@ class SkillService(
     }
 
     fun deleteSkillOfferedByUserAndSkill(userUid: String, skillId: Long) {
-        val user = userRepository.findById(userUid)
+        userRepository.findById(userUid)
             .orElseThrow { IllegalArgumentException("User with uid $userUid not found") }
-        val skill = skillRepository.findById(skillId)
+        skillRepository.findById(skillId)
             .orElseThrow { IllegalArgumentException("Skill with id $skillId not found") }
-        
-        skillOfferedRepository.deleteByUserAndSkill(user, skill)
+
+        if (skillOfferedRepository.deleteByUserUidAndSkillId(userUid, skillId) <= 0) {
+            throw IllegalArgumentException("SkillOffered with user uid $userUid and skill id $skillId not found")
+        }
     }
 
     fun existsSkillOfferedById(id: Long): Boolean = skillOfferedRepository.existsById(id)
