@@ -663,6 +663,7 @@ class SkillServiceTest {
         // Given
         `when`(userRepository.findById(testUserUid)).thenReturn(Optional.of(testUser))
         `when`(skillRepository.findById(testId)).thenReturn(Optional.of(testSkill))
+        `when`(skillDesiredRepository.deleteByUserUidAndSkillId(testUserUid, testId)).thenReturn(1)
 
         // When
         skillService.deleteSkillDesiredByUserAndSkill(testUserUid, testId)
@@ -670,7 +671,7 @@ class SkillServiceTest {
         // Then
         verify(userRepository).findById(testUserUid)
         verify(skillRepository).findById(testId)
-        verify(skillDesiredRepository).deleteByUserAndSkill(testUser, testSkill)
+        verify(skillDesiredRepository).deleteByUserUidAndSkillId(testUser.uid!!, testSkill.id!!)
     }
 
     @Test
@@ -954,6 +955,7 @@ class SkillServiceTest {
         // Given
         `when`(userRepository.findById(testUserUid)).thenReturn(Optional.of(testUser))
         `when`(skillRepository.findById(testId)).thenReturn(Optional.of(testSkill))
+        `when`(skillOfferedRepository.deleteByUserUidAndSkillId(testUserUid, testId)).thenReturn(1)
 
         // When
         skillService.deleteSkillOfferedByUserAndSkill(testUserUid, testId)
@@ -961,7 +963,7 @@ class SkillServiceTest {
         // Then
         verify(userRepository).findById(testUserUid)
         verify(skillRepository).findById(testId)
-        verify(skillOfferedRepository).deleteByUserAndSkill(testUser, testSkill)
+        verify(skillOfferedRepository).deleteByUserUidAndSkillId(testUser.uid!!, testSkill.id!!)
     }
 
     @Test

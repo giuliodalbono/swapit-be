@@ -33,6 +33,9 @@ class SwapProposalServiceTest {
     private lateinit var skillService: SkillService
 
     @Mock
+    private lateinit var calendarService: CalendarService
+
+    @Mock
     private lateinit var swapProposalMapper: SwapProposalMapper
 
     @Mock
