@@ -32,6 +32,7 @@ class SwapProposal: Serializable {
     var presentationLetter: String? = null
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     var status: SwapProposalStatus? = null
 
     @Generated(event = [EventType.INSERT])
