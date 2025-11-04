@@ -109,6 +109,33 @@ class SkillController(private val skillService: SkillService) {
             .orElse(ResponseEntity.notFound().build())
     }
 
+    @GetMapping("/labels/{label}")
+    @Operation(
+        summary = "Get skills by label like",
+        description = "Retrieves all skills by label/name"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Skills found successfully",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = Array<SkillDto>::class)
+                )]
+            )
+        ]
+    )
+    fun getAllSkillsByLabel(
+        @Parameter(
+            description = "Label/name of the skill to retrieve",
+            example = "Java Programming",
+            required = true
+        ) @PathVariable label: String
+    ): Set<SkillDto> {
+        return skillService.findAllByLabel(label)
+    }
+
     @PostMapping
     @Operation(
         summary = "Create new skill",

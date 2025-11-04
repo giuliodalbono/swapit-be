@@ -33,6 +33,8 @@ class SkillService(
 
     fun findByLabel(label: String): Optional<SkillDto> = skillRepository.findByLabel(label).map { skillMapper.toDto(it) }
 
+    fun findAllByLabel(label: String): Set<SkillDto> = skillRepository.findAllByLabelContaining(label).map { skillMapper.toDto(it) }.toSet()
+
     fun save(createRequest: CreateSkillRequest): SkillDto {
         val skill = skillMapper.toEntity(createRequest)
         val savedSkill = skillRepository.save(skill)
