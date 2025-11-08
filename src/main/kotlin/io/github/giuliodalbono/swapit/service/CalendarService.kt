@@ -144,6 +144,6 @@ class CalendarService {
 
     @AfterCommit
     fun createEventUsingOAuth2AfterCommit(calendarEventDto: GCalendarEventDto) {
-        createEventUsingOAuth2AfterCommit(calendarEventDto)
+        createEventUsingOAuth2(calendarEventDto)
     }
 }
