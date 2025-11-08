@@ -7,8 +7,6 @@ import io.github.giuliodalbono.swapit.dto.UpdateSwapProposalRequest
 import io.github.giuliodalbono.swapit.model.entity.SwapProposal
 import org.springframework.stereotype.Component
 import java.time.ZoneId
-import java.time.format.TextStyle
-import java.util.Locale
 
 @Component
 class SwapProposalMapper {
@@ -61,7 +59,7 @@ class SwapProposalMapper {
             """.trimIndent(),
             startDateTime = swapProposal.date!!.atTime(swapProposal.startTime).atZone(ZoneId.systemDefault()),
             endDateTime = swapProposal.date!!.atTime(swapProposal.endTime).atZone(ZoneId.systemDefault()),
-            timeZone = ZoneId.systemDefault().getDisplayName(TextStyle.FULL, Locale.ITALY),
+            timeZone = ZoneId.systemDefault().id,
             attendees = listOf(
                 swapProposal.offerUser!!.email!!,
                 swapProposal.requestUser!!.email!!,
