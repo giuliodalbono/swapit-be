@@ -88,13 +88,10 @@ services:
       KAFKA_BROKERS: broker:29092
     volumes:
       - ../email-credentials/swapit-be-oauth2-credentials.json:/app/email-credentials/swapit-be-oauth2-credentials.json:ro
-      - swapit-tokens:/app/email-credentials/tokens
+      - ../email-credentials/tokens:/app/email-credentials/tokens
     healthcheck:
       test: ["CMD-SHELL", "wget --no-check-certificate --spider -q http://localhost:8080/SwapItBe/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-volumes:
-  swapit-tokens:
